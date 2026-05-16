@@ -4,6 +4,32 @@ This document outlines the strategic evolution of `oci-lens` from a local CLI sc
 
 ---
 
+## 0. 🔴 Priority 1: Test Coverage — `src/reporter/resource_report/`
+
+The PDF reporting modules under `src/reporter/resource_report/` currently have **0% test coverage**, dragging total project coverage down to ~70% and preventing the CI pipeline from enforcing a meaningful threshold.
+
+The goal is to achieve **100% coverage** on these three modules, and push total project coverage back above **75%** (eventual target: 100%).
+
+### Affected Modules
+
+| Module | Lines | Current Coverage |
+| :--- | :---: | :---: |
+| `src/reporter/resource_report/builder.py` | 281 | **0%** |
+| `src/reporter/resource_report/charts.py` | 163 | **0%** |
+| `src/reporter/resource_report/data.py` | 179 | **0%** |
+
+### Plan
+
+1. **Write unit tests** for `data.py` — mock OCI data structures and assert the transformation logic produces the expected DataFrames/dicts.
+2. **Write unit tests** for `charts.py` — use `pytest` with `matplotlib` in non-interactive mode (`matplotlib.use('Agg')`) to assert charts are created without errors.
+3. **Write unit tests** for `builder.py` — mock the ReportLab PDF canvas and assert section assembly calls are made correctly.
+4. **Raise `--cov-fail-under`** in `ci.yml` back to `75`, then progressively to `100` as coverage improves.
+
+### Current CI Workaround
+The coverage threshold in `.github/workflows/ci.yml` has been **temporarily lowered to 65%** to unblock the pipeline. This must be raised back to 75% once the above tests are written.
+
+---
+
 ## 1. Storage Backend: Transitioning to a Database
 
 Currently, `oci-lens` relies on raw JSON files. To support historical trends, a web GUI, and faster analytics, we need a persistent datastore.
@@ -98,6 +124,7 @@ A structured roadmap defining priority, effort, and architectural dependencies.
 
 | Feature / Task | Priority | Effort | Prerequisites | Architectural Impact |
 | :--- | :---: | :---: | :--- | :--- |
+| **0. Test Coverage: `resource_report/`** | **🔴 P1** (Immediate) | Medium | None | Zero risk to production. Unblocks CI threshold enforcement. |
 | **1. Refactor `main.py`** | **P0** (Critical) | Medium | None | Low risk, high reward. Must happen before adding new features. |
 | **2. Concurrent API Fetching** | **P0** (Critical) | Medium | None | Changes `collector` logic. Drastically speeds up execution. |
 | **3. SQLite Integration** | **P1** (High) | High | P0 Refactor | Replaces raw JSON. Requires building an ORM / schema layer. |
