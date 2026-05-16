@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:20px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:4px;overflow:hidden;">
+
+      <!-- Header -->
+      <tr>
+        <td style="background:#0F2D52;padding:20px 24px;">
+          <p style="margin:0;color:#ffffff;font-size:18px;font-weight:bold;">OCI Cloud Cost Optimization</p>
+          <p style="margin:4px 0 0;color:#AABBCC;font-size:12px;">Report Period: {{ period_start }} – {{ period_end }}</p>
+        </td>
+      </tr>
+
+      <!-- KPI Row -->
+      <tr>
+        <td style="padding:20px 24px 0;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td width="25%" style="text-align:center;padding:12px 6px;border:1px solid #E5E5E5;border-radius:4px;">
+                <p style="margin:0;font-size:22px;font-weight:bold;color:#0F2D52;">${{ total_cost }}</p>
+                <p style="margin:4px 0 0;font-size:10px;color:#9A9A9A;">Monthly Run Rate</p>
+              </td>
+              <td width="4%"></td>
+              <td width="25%" style="text-align:center;padding:12px 6px;border:1px solid #E5E5E5;border-radius:4px;">
+                <p style="margin:0;font-size:22px;font-weight:bold;color:#2E7D32;">${{ savings }}</p>
+                <p style="margin:4px 0 0;font-size:10px;color:#9A9A9A;">Potential Savings/mo</p>
+              </td>
+              <td width="4%"></td>
+              <td width="25%" style="text-align:center;padding:12px 6px;border:1px solid #E5E5E5;border-radius:4px;">
+                <p style="margin:0;font-size:22px;font-weight:bold;color:#00838F;">{{ composite_score }}</p>
+                <p style="margin:4px 0 0;font-size:10px;color:#9A9A9A;">Composite Score</p>
+              </td>
+              <td width="4%"></td>
+              <td width="25%" style="text-align:center;padding:12px 6px;border:1px solid #E5E5E5;border-radius:4px;">
+                <p style="margin:0;font-size:22px;font-weight:bold;color:{% if anomaly_count > 0 %}#C62828{% else %}#2E7D32{% endif %};">{{ anomaly_count }}</p>
+                <p style="margin:4px 0 0;font-size:10px;color:#9A9A9A;">Anomalies</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      {% if top_recommendations %}
+      <!-- Top Recommendations -->
+      <tr>
+        <td style="padding:20px 24px 0;">
+          <p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:#0F2D52;">Top Recommendations</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+            <tr style="background:#0F2D52;">
+              <td style="padding:8px 10px;color:#fff;font-size:11px;font-weight:bold;">Instance</td>
+              <td style="padding:8px 10px;color:#fff;font-size:11px;font-weight:bold;">Action</td>
+              <td style="padding:8px 10px;color:#fff;font-size:11px;font-weight:bold;">Savings/mo</td>
+              <td style="padding:8px 10px;color:#fff;font-size:11px;font-weight:bold;">Confidence</td>
+            </tr>
+            {% for rec in top_recommendations %}
+            <tr style="background:{% if loop.index is odd %}#ffffff{% else %}#F8F8F8{% endif %};">
+              <td style="padding:7px 10px;font-size:11px;color:#1A1A1A;border-bottom:1px solid #E5E5E5;">{{ rec.name }}</td>
+              <td style="padding:7px 10px;font-size:11px;color:#1A1A1A;border-bottom:1px solid #E5E5E5;">{{ rec.action }}</td>
+              <td style="padding:7px 10px;font-size:11px;color:#2E7D32;font-weight:bold;border-bottom:1px solid #E5E5E5;">${{ rec.savings }}</td>
+              <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #E5E5E5;">
+                <span style="background:{% if rec.confidence == 'high' %}#2E7D32{% elif rec.confidence == 'medium' %}#EF6C00{% else %}#C62828{% endif %};color:#fff;padding:2px 6px;border-radius:3px;font-size:10px;">{{ rec.confidence|upper }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
+        </td>
+      </tr>
+      {% endif %}
+
+      {% if top_anomalies %}
+      <!-- Anomalies -->
+      <tr>
+        <td style="padding:20px 24px 0;">
+          <p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:#C62828;">⚠ Anomalies Detected</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+            {% for anom in top_anomalies %}
+            <tr style="background:{% if loop.index is odd %}#FFEBEE{% else %}#FFF3F3{% endif %};">
+              <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #FFCDD2;">
+                <strong>{{ anom.severity|upper }}</strong> — {{ anom.signal }}: {{ anom.description }}
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
+        </td>
+      </tr>
+      {% endif %}
+
+      <!-- Footer -->
+      <tr>
+        <td style="padding:20px 24px;border-top:1px solid #E5E5E5;margin-top:20px;">
+          {% if pdf_attached %}<p style="margin:0;font-size:11px;color:#9A9A9A;">Full report attached: <strong>{{ pdf_filename }}</strong></p>{% else %}<p style="margin:0;font-size:11px;color:#9A9A9A;">Full report saved on server: <strong>reports/pdf/{{ pdf_filename }}</strong></p>{% endif %}
+          {% if csv_filename %}<p style="margin:4px 0 0;font-size:11px;color:#9A9A9A;">Recommendations CSV: <strong>{{ csv_filename }}</strong></p>{% endif %}
+          <p style="margin:12px 0 0;font-size:10px;color:#BBBBBB;">Generated {{ generated_at }} | Run ID: {{ run_id }} | OCI Cost Optimizer v1.0</p>
+        </td>
+      </tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

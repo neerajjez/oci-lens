@@ -1,0 +1,42 @@
+# Runtime output
+logs/
+reports/
+
+# Credentials & live config — mount at runtime, never bake in
+config/config.yaml
+config/config
+config/config_2
+config/*.pem
+config/*.key
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+
+# Test / dev artefacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+tests/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.git/
+.gitignore

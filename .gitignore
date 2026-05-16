@@ -1,0 +1,45 @@
+# Runtime output
+logs/
+reports/
+
+# Credentials & live config — never commit
+config/config.yaml
+config/config
+config/config_2
+config/*.pem
+config/*.key
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+#Claude
+.claude
+.claude*
+.cursor*
+.gemini*
+
+CLAUDE.md

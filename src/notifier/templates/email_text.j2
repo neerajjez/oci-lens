@@ -1,0 +1,37 @@
+OCI Cloud Cost Optimization Report
+===================================
+Period: {{ period_start }} – {{ period_end }}
+Generated: {{ generated_at }} | Run ID: {{ run_id }}
+
+FINANCIAL SUMMARY
+-----------------
+Monthly Run Rate:        ${{ total_cost }}
+Potential Savings/mo:    ${{ savings }}
+Composite Score:         {{ composite_score }}
+Anomalies Detected:      {{ anomaly_count }}
+
+{% if top_recommendations %}
+TOP RECOMMENDATIONS
+-------------------
+{% for rec in top_recommendations %}
+{{ loop.index }}. {{ rec.name }}
+   Action:     {{ rec.action }}
+   Savings/mo: ${{ rec.savings }}
+   Confidence: {{ rec.confidence|upper }}
+{% endfor %}
+{% endif %}
+
+{% if top_anomalies %}
+ANOMALIES
+---------
+{% for anom in top_anomalies %}
+[{{ anom.severity|upper }}] {{ anom.signal }}: {{ anom.description }}
+  Suggested action: {{ anom.action }}
+  Recoverable: ${{ anom.recoverable }}
+{% endfor %}
+{% endif %}
+
+{% if pdf_attached %}Full report attached: {{ pdf_filename }}{% else %}Full report saved on server: reports/pdf/{{ pdf_filename }}{% endif %}
+{% if csv_filename %}Recommendations CSV: {{ csv_filename }}{% endif %}
+
+OCI Cost Optimizer v1.0

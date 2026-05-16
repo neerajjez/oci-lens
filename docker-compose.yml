@@ -1,0 +1,120 @@
+services:
+  oci-resource-report:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: oci-resource-report:latest
+    container_name: oci-resource-report
+    restart: unless-stopped
+
+    env_file:
+      - config/.env
+
+    environment:
+      LOG_FORMAT: json
+      LOG_LEVEL: INFO
+      PYTHONUNBUFFERED: "1"
+
+    # Host bind mounts — no named volumes
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+        read_only: true
+      - type: bind
+        source: ./reports
+        target: /app/reports
+      - type: bind
+        source: ./logs
+        target: /app/logs
+
+    # Run the full pipeline on each container start
+    command: ["run"]
+
+    healthcheck:
+      test: ["CMD", "python", "main.py", "health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+
+  # One-shot collector — docker compose run --rm collect
+  collect:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: oci-resource-report:latest
+    container_name: oci-collect
+    profiles: ["tools"]
+
+    env_file:
+      - config/.env
+
+    environment:
+      LOG_FORMAT: json
+      LOG_LEVEL: INFO
+      PYTHONUNBUFFERED: "1"
+
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+        read_only: true
+      - type: bind
+        source: ./reports
+        target: /app/reports
+      - type: bind
+        source: ./logs
+        target: /app/logs
+
+    command: ["collect"]
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+
+  # One-shot report generator — docker compose run --rm report
+  report:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: oci-resource-report:latest
+    container_name: oci-report
+    profiles: ["tools"]
+
+    env_file:
+      - config/.env
+
+    environment:
+      LOG_FORMAT: json
+      LOG_LEVEL: INFO
+      PYTHONUNBUFFERED: "1"
+
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+        read_only: true
+      - type: bind
+        source: ./reports
+        target: /app/reports
+      - type: bind
+        source: ./logs
+        target: /app/logs
+
+    command: ["resource-report"]
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp

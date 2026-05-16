@@ -1,0 +1,72 @@
+# ---------------------------------------------------------------------------
+# OCI Resource Report — example configuration
+# Copy this file to config.yaml and fill in your values.
+# ---------------------------------------------------------------------------
+
+collection_period_days: 30          # days of metrics history to pull
+metrics_interval_minutes: 60        # OCI Monitoring aggregation window
+
+thresholds:
+  cpu_underutilized_pct: 20         # below this p95 → Over-provisioned
+  memory_underutilized_pct: 30
+  cpu_overcommit_pct: 85            # above this p95 → Under-provisioned
+
+report:
+  output_dir: ./reports
+  retention_days: 90
+
+email:
+  enabled: false
+  smtp_host: smtp.example.com
+  smtp_port: 587
+  from_address: oci-reports@example.com
+  to_addresses:
+    - you@example.com
+  encryption: tls                   # none | tls | starttls
+  auth_method: login                # none | login
+  use_tls: true
+  attach_pdf: true
+
+schedule:
+  interval_days: 15
+
+fx_rates:
+  INR: 0.012                        # add other currencies as needed
+
+# ---------------------------------------------------------------------------
+# Multi-tenancy: one entry per OCI tenancy.
+# Each tenancy needs its own OCI config file (or a named profile within one).
+# home_region = the tenancy's subscription region (where Cost/Usage API lives).
+# ---------------------------------------------------------------------------
+tenancies:
+  - name: "Tenancy A"
+    oci_config_path: /path/to/oci/config_a    # or ~/.oci/config
+    oci_profile: DEFAULT
+    home_region: us-ashburn-1
+    compartments:
+      - id: ocid1.compartment.oc1..REPLACE_WITH_REAL_OCID
+        name: "Production"
+        region: us-ashburn-1
+      - id: ocid1.compartment.oc1..REPLACE_WITH_REAL_OCID_2
+        name: "Development"
+        region: eu-frankfurt-1      # each compartment can be in a different region
+
+  - name: "Tenancy B"
+    oci_config_path: /path/to/oci/config_b
+    oci_profile: DEFAULT
+    home_region: ap-tokyo-1
+    compartments:
+      - id: ocid1.compartment.oc1..REPLACE_WITH_REAL_OCID_3
+        name: "Asia-Prod"
+        region: ap-tokyo-1
+
+# ---------------------------------------------------------------------------
+# OCI config file format (one file per tenancy, at the path above):
+#
+# [DEFAULT]
+# user=ocid1.user.oc1..your_user_ocid
+# fingerprint=xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx
+# tenancy=ocid1.tenancy.oc1..your_tenancy_ocid
+# region=us-ashburn-1
+# key_file=/path/to/your/private_key.pem
+# ---------------------------------------------------------------------------
