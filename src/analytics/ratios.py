@@ -301,7 +301,7 @@ def compute_fleet_kpis(
     fleet_avg_cpu_utilization = _safe_weighted_average(cpu_series, cost_series)
 
     # Memory: only instances with has_memory_data=True
-    mem_instances = merged[merged["has_memory_data"] == True]
+    mem_instances = merged[merged["has_memory_data"]]
     if mem_instances.empty:
         fleet_avg_memory_utilization: Optional[float] = None
     else:
@@ -318,7 +318,7 @@ def compute_fleet_kpis(
     # -----------------------------------------------------------------------
     # DISTRIBUTION COUNTS
     # -----------------------------------------------------------------------
-    sufficient = merged["sufficient_data"] == True
+    sufficient = merged["sufficient_data"]
     idle_pattern = merged["pattern"] == UtilizationPattern.IDLE.value
     composite = merged["composite_score"]
     cpu_p99_series = merged["cpu_p99"] if "cpu_p99" in merged.columns else pd.Series(
@@ -389,7 +389,7 @@ def compute_fleet_kpis(
         )
 
     # Top-5 efficient instances (by effective_cost_ratio desc, exclude no_billing_data)
-    billable = merged[merged["no_billing_data"] == False]
+    billable = merged[~merged["no_billing_data"]]
     if billable.empty:
         top_5_efficient: list[dict] = []
     else:

@@ -208,7 +208,7 @@ def attribute_costs(
 
     orphaned_costs_df: pd.DataFrame
     if not costs_df.empty:
-        orphaned_costs_df = costs_df[costs_df["is_orphaned"] == True].copy()
+        orphaned_costs_df = costs_df[costs_df["is_orphaned"]].copy()
     else:
         orphaned_costs_df = _empty_costs_subset(costs_df)
 
