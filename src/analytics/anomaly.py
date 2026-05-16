@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+
 
 import numpy as np
 import pandas as pd
@@ -89,7 +89,7 @@ def _detect_cost_outliers(
 
     flagged = positive[positive["_z"].abs() > 2.5]
 
-    mean_exp = math.exp(mean_log) - 1  # approximate fleet mean cost
+
 
     for _, row in flagged.iterrows():
         z = float(row["_z"])
